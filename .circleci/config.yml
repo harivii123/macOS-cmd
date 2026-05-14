@@ -1,0 +1,44 @@
+version: 2.1
+
+jobs:
+  build-and-run-macos:
+    macos:
+      xcode: "26.4.1"
+    resource_class: m4pro.medium
+
+    steps:
+      - checkout
+
+      - run:
+          name: Check macOS environment
+          command: |
+            sw_vers
+            uname -m
+            python3 --version
+
+      - run:
+          name: Build FinanceSummary
+          command: |
+            chmod +x build_macos_create_executable_here.sh
+            ./build_macos_create_executable_here.sh
+
+      - run:
+          name: Test generated executable
+          command: |
+            chmod +x FinanceSummary
+            file FinanceSummary
+            ./FinanceSummary || true
+
+      - run:
+          name: Package executable
+          command: |
+            tar -czf FinanceSummary-macos.tar.gz FinanceSummary
+
+      - store_artifacts:
+          path: FinanceSummary-macos.tar.gz
+          destination: FinanceSummary-macos.tar.gz
+
+workflows:
+  build:
+    jobs:
+      - build-and-run-macos
